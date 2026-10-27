@@ -1,0 +1,127 @@
+<?php
+require "config.php";
+
+// Solo usuarios con sesión iniciada
+if (!isset($_SESSION["usuario_id"])) {
+    header("Location: login.php");
+    exit;
+}
+$uid = $_SESSION["usuario_id"];
+$mensaje = "";
+$tipo = "";
+
+// Guardar pedido
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $marca     = (int)($_POST["marca"] ?? 0);
+    $producto  = trim($_POST["producto"] ?? "");
+    $cantidad  = (int)($_POST["cantidad"] ?? 0);
+    $direccion = trim($_POST["direccion"] ?? "");
+    $notas     = trim($_POST["notas"] ?? "");
+
+    if ($marca < 1 || $producto === "" || $direccion === "" || $cantidad < 1 || $cantidad > 99) {
+        $mensaje = "Selecciona categoría y marca, y completa producto, cantidad (1–99) y dirección.";
+        $tipo = "err";
+    } else {
+        $ins = $conexion->prepare(
+            "INSERT INTO pedidos (usuario_id, marca_id, producto, cantidad, direccion, notas) VALUES (?, ?, ?, ?, ?, ?)"
+        );
+        $ins->bind_param("iisiss", $uid, $marca, $producto, $cantidad, $direccion, $notas);
+        $ins->execute();
+        $mensaje = "Pedido guardado.";
+        $tipo = "ok";
+    }
+}
+
+$categorias = $conexion->query("SELECT id, nombre FROM categorias ORDER BY id");
+
+$q = $conexion->prepare(
+    "SELECT p.creado, c.nombre AS categoria, m.nombre AS marca, p.producto, p.cantidad
+     FROM pedidos p
+     JOIN marcas m ON m.id = p.marca_id
+     JOIN categorias c ON c.id = m.categoria_id
+     WHERE p.usuario_id = ? ORDER BY p.id DESC"
+);
+$q->bind_param("i", $uid);
+$q->execute();
+$pedidos = $q->get_result()->fetch_all(MYSQLI_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tienda Onine · Compra por marca</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header>
+    <h1>Tienda Online    EVA0903 5-J</h1>
+    <div><span class="muted"><?= e($_SESSION["nombre"]) ?></span> <a class="btn ghost" href="logout.php">Cerrar sesión</a></div>
+  </header>
+  <main>
+    <section class="panel">
+      <h2>Nuevo pedido</h2>
+      <?php if ($mensaje): ?><p class="msg <?= $tipo ?>"><?= e($mensaje) ?></p><?php endif; ?>
+      <form method="post">
+        <div class="fila">
+          <div>
+            <label for="categoria">Categoría</label>
+            <select id="categoria" required>
+              <option value="">Elige una categoría</option>
+              <?php while ($c = $categorias->fetch_assoc()): ?>
+                <option value="<?= $c["id"] ?>"><?= e($c["nombre"]) ?></option>
+              <?php endwhile; ?>
+            </select>
+          </div>
+          <div>
+            <label for="marca">Marca</label>
+            <select id="marca" name="marca" required disabled>
+              <option value="">Primero elige una categoría</option>
+            </select>
+          </div>
+        </div>
+        <div class="fila">
+          <div>
+            <label for="producto">Producto (modelo, talla, color)</label>
+            <input id="producto" name="producto" maxlength="120" required placeholder="Ej. Tenis Air Max, talla 27, negro">
+          </div>
+          <div>
+            <label for="cantidad">Cantidad</label>
+            <input id="cantidad" name="cantidad" type="number" min="1" max="99" value="1" required>
+          </div>
+        </div>
+        <label for="direccion">Dirección de entrega</label>
+        <input id="direccion" name="direccion" maxlength="250" required>
+        <label for="notas">Notas (opcional)</label>
+        <textarea id="notas" name="notas" rows="2" maxlength="500"></textarea>
+        <button class="btn" type="submit">Guardar pedido</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Mis pedidos</h2>
+      <?php if (!$pedidos): ?>
+        <p class="muted">Aún no tienes pedidos. Llena el formulario para crear el primero.</p>
+      <?php else: ?>
+        <div class="tabla">
+          <table>
+            <thead><tr><th>Fecha</th><th>Categoría</th><th>Marca</th><th>Producto</th><th>Cant.</th></tr></thead>
+            <tbody>
+              <?php foreach ($pedidos as $p): ?>
+                <tr>
+                  <td><?= e(substr($p["creado"], 0, 16)) ?></td>
+                  <td><?= e($p["categoria"]) ?></td>
+                  <td><?= e($p["marca"]) ?></td>
+                  <td><?= e($p["producto"]) ?></td>
+                  <td><?= (int)$p["cantidad"] ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      <?php endif; ?>
+    </section>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+</html>
