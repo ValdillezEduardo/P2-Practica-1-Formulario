@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login">
+  <!-- Pantalla dividida: texto a la izquierda y formulario a la derecha -->
+  <main class="auth">
+    <section class="auth-hero" aria-hidden="true"><p>Sigue<br>moviéndote.</p></section>
+    <section class="auth-panel">
+      <h1>Inicia sesión</h1>
+      <p class="sub">Entra con tu correo y contraseña.</p>
+      <!-- Aquí se muestran los mensajes de error o éxito -->
+      <div id="mensajes"></div>
+      <!-- Formulario de inicio de sesión -->
+      <form id="form" novalidate>
+        <label>Correo electrónico<input type="email" name="email" required autocomplete="email"></label>
+        <label>Contraseña<input type="password" name="password" required autocomplete="current-password"></label>
+        <button type="submit">Iniciar sesión</button>
+      </form>
+      <p class="alt">¿Aún no tienes cuenta? <a href="register.html">Regístrate</a></p>
+    </section>
+  </main>
+  <!-- Lógica de la página -->
+  <script src="js/app.js"></script>
+</body>
+</html>

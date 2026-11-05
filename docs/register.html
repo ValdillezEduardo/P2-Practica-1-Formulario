@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear cuenta</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="register">
+  <!-- Pantalla dividida: texto a la izquierda y formulario a la derecha -->
+  <main class="auth">
+    <section class="auth-hero" aria-hidden="true"><p>Hazlo<br>ahora.</p></section>
+    <section class="auth-panel">
+      <h1>Crea tu cuenta</h1>
+      <p class="sub">Regístrate para guardar tus compras y tus favoritos.</p>
+      <!-- Aquí se muestran los mensajes de error o éxito -->
+      <div id="mensajes"></div>
+      <!-- Formulario de registro -->
+      <form id="form" novalidate>
+        <div class="row">
+          <label>Nombre<input type="text" name="nombre" required autocomplete="given-name"></label>
+          <label>Apellido<input type="text" name="apellido" required autocomplete="family-name"></label>
+        </div>
+        <label>Correo electrónico<input type="email" name="email" required autocomplete="email"></label>
+        <label>Contraseña<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+        <label>Repite la contraseña<input type="password" name="password2" minlength="8" required autocomplete="new-password"></label>
+        <button type="submit">Crear cuenta</button>
+      </form>
+      <p class="alt">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+    </section>
+  </main>
+  <!-- Lógica de la página -->
+  <script src="js/app.js"></script>
+</body>
+</html>
